@@ -20,7 +20,7 @@ func GenerateToken(user_id uuid.UUID, lifespan int, api_secret string) (string, 
 	claims["exp"] = time.Now().Add(time.Hour * time.Duration(lifespan)).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString(api_secret)
+	return token.SignedString([]byte(api_secret))
 
 }
 
