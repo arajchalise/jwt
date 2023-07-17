@@ -1,4 +1,4 @@
-module github.com/smis_jwt_token
+module github.com/arajchalise/jwt
 
 go 1.19
 
