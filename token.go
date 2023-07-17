@@ -24,13 +24,13 @@ func GenerateToken(user_id uuid.UUID, lifespan int, api_secret string) (string, 
 
 }
 
-func TokenValid(c *gin.Context, api_secret []byte) error {
+func TokenValid(c *gin.Context, api_secret string) error {
 	tokenString := ExtractToken(c)
 	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return api_secret, nil
+		return []byte(api_secret), nil
 	})
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func ExtractToken(c *gin.Context) string {
 	return ""
 }
 
-func ExtractTokenID(c *gin.Context, api_secret []byte) (uuid.UUID, error) {
+func ExtractTokenID(c *gin.Context, api_secret string) (uuid.UUID, error) {
 	nUUID, err := uuid.Parse(nullUUID)
 	if err != nil {
 		return uuid.UUID{}, err
@@ -60,7 +60,7 @@ func ExtractTokenID(c *gin.Context, api_secret []byte) (uuid.UUID, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return api_secret, nil
+		return []byte(api_secret), nil
 	})
 	if err != nil {
 		return nUUID, err
