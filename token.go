@@ -7,12 +7,11 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 const nullUUID = "00000000-0000-0000-0000-000000000000"
 
-func GenerateToken(user_id uuid.UUID, lifespan int, api_secret string) (string, error) {
+func GenerateToken(user_id string, lifespan int, api_secret string) (string, error) {
 
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
@@ -50,11 +49,7 @@ func ExtractToken(c *gin.Context) string {
 	return ""
 }
 
-func ExtractTokenID(c *gin.Context, api_secret string) (uuid.UUID, error) {
-	nUUID, err := uuid.Parse(nullUUID)
-	if err != nil {
-		return uuid.UUID{}, err
-	}
+func ExtractTokenID(c *gin.Context, api_secret string) (string, error) {
 	tokenString := ExtractToken(c)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -63,15 +58,15 @@ func ExtractTokenID(c *gin.Context, api_secret string) (uuid.UUID, error) {
 		return []byte(api_secret), nil
 	})
 	if err != nil {
-		return nUUID, err
+		return nullUUID, err
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
-		userUUID, ok := claims["user_id"].(uuid.UUID)
+		userUUID, ok := claims["user_id"].(string)
 		if !ok {
-			return uuid.UUID{}, fmt.Errorf("Invalid user UUID ")
+			return nullUUID, fmt.Errorf("Invalid user UUID ")
 		}
 		return userUUID, nil
 	}
-	return nUUID, fmt.Errorf("Invalid user token")
+	return nullUUID, fmt.Errorf("Invalid user token")
 }
