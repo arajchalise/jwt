@@ -1,10 +1,10 @@
-package token
+package main
 
 import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,9 +35,9 @@ func Send(c *gin.Context, url, method string, payload map[string]interface{}) (m
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 && resp.StatusCode > 200 {
-		return nil, errors.New("Something Went wrong")
+		return nil, errors.New("something Went wrong")
 	}
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -45,5 +45,5 @@ func Send(c *gin.Context, url, method string, payload map[string]interface{}) (m
 
 	err = json.Unmarshal(body, &data)
 
-	return data, nil
+	return data, err
 }
